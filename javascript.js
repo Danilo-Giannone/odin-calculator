@@ -27,7 +27,12 @@ for (let i = 0; i < keyboardText.length; i++) {
                 button.classList.add("equal");
             }else if(keyboardText[i][j] == "."){
                 button.classList.add("dot");
-            }else{
+            }else if(keyboardText[i][j] == "+" ||
+                keyboardText[i][j] == "-"||
+                keyboardText[i][j] == "*"||
+                keyboardText[i][j] == "/"||
+                keyboardText[i][j] == "%"
+            ){
                 button.classList.add("operator");
             }  
         }
@@ -47,55 +52,114 @@ function refresh(){
 };
 let operatorFlag = false;
 let dotFlag = false;
+let equalFlag = false;
 let firstNumber = "";
-let SecondNumber = "";
-let TotalNumber="";
-let operator="";
-let buttons = document.querySelectorAll(".btn");
-buttons.forEach(button => {
-    button.addEventListener("click", (e)=>{
-        if(e.target.classList.contains("digit")){
-            if(!operatorFlag){
-                if(firstNumber.includes(".") && !dotFlag){
-                    display.textContent = "Error! Too many after the dot!";
-                }else{
-                    firstNumber += (e.target.textContent);
-                    checkNumber(firstNumber); 
-                    dotFlag =false;  
-                }
+let secondNumber = "";
+let totalNumber="";
+let operatorText="";
+let digits = document.querySelectorAll(".digit");
+digits.forEach(digit => {
+    digit.addEventListener("click", (e)=>{
+        if(!operatorFlag){
+            if(firstNumber.includes(".") && !dotFlag){
+                display.textContent = "Error! Too many after the dot!";
             }else{
-                if(firstNumber.includes(".") && !dotFlag){
-                    display.textContent = "Error! Too many after the dot!";    
-                }else{secondNumber += (e.target.textContent);
-                    checkNumber(secondNumber); 
-                    dotFlag =false;
-                }                
+                firstNumber += (e.target.textContent);
+                checkNumber(firstNumber); 
+                dotFlag =false;
+                equalFlag = false;  
             }
-        }else if(e.target.classList.contains("dot")){
-            if(!operatorFlag){
-                if(firstNumber.includes(".")){
-                    display.textContent = "Error! Too many dots!";
-                }else{
-                    firstNumber += (e.target.textContent);
-                    checkNumber(firstNumber); 
-                    dotFlag = true;
-                }   
+        }else{
+            if(secondNumber.includes(".") && !dotFlag){
+                display.textContent = "Error! Too many after the dot!";    
             }else{
-                if(secondNumber.includes(".")){
-                    display.textContent = "Error! Too many dots!";   
-                }else{
-                    secondNumber += (e.target.textContent);
-                    checkNumber(secondNumber);
-                    dotFlag = true;
-                }         
-            }
+                secondNumber += (e.target.textContent);
+                checkNumber(secondNumber); 
+                dotFlag =false;
+                equalFlag = false;
+            }                
+        }
+        
+    })
+});
+
+let operators = document.querySelectorAll(".operator");
+operators.forEach(operator => {
+    operator.addEventListener("click", (e)=>{
+        operatorText=e.target.textContent;
+        operatorFlag= true; 
+        dotFlag = false;
+        if(equalFlag){
+            firstNumber = totalNumber;
+            equalFlag = false;
         }
     })
 });
+
+let equal = document.querySelector(".equal");
+equal.addEventListener("click", (e)=>{
+    totalNumber = calculate(parseFloat(firstNumber),parseFloat(secondNumber),operatorText);   
+    display.textContent = totalNumber;
+    console.log(totalNumber);
+    equalFlag = true;
+    firstNumber = "";
+    secondNumber = "";
+    operatorText = "";
+    operatorFlag = false
+});    
+ 
+let dot = document.querySelector(".dot");
+dot.addEventListener("click", (e)=>{
+    if(!operatorFlag){
+        if(firstNumber.includes(".")){
+            display.textContent = "Error! Too many dots!";
+        }else{
+            firstNumber += (e.target.textContent);
+            checkNumber(firstNumber); 
+            dotFlag = true;
+        }   
+    }else{
+        if(secondNumber.includes(".")){
+            display.textContent = "Error! Too many dots!";   
+        }else{
+            secondNumber += (e.target.textContent);
+            checkNumber(secondNumber);
+            dotFlag = true;
+        }         
+    }
+});
+        
+        
+        
+function calculate(num1,num2,op){
+    console.log(op);
+    
+    switch (op) {
+        case "%":
+            return num1%num2;
+            break;
+        case "+":
+            return num1+num2;
+            break;
+        case "-":
+            return num1-num2;
+            break;
+        case "*":
+            return num1*num2;
+            break;
+        case "/":
+            return num1/num2;
+            break;
+        default:
+            console.log("default");
+            
+    }
+}       
+        
 function checkNumber(num){
     if(num.length <= 21){
         display.textContent = num;
     }else{
         display.textContent = "Error! Too many digits!"
     }
-}
+};
